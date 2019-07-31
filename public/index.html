@@ -11,20 +11,11 @@
       <div class="container pa0 flex justify-center mt-5">
           <div class="listings card-columns" id="app">
 
-                  <div v-for="dato in datos" class="card mv2 p-1 text-center">
 
-                    <div>{{dato.timezone}}</div>
-                    <canvas :class="{{dato.currently.icon}}" width="64" height="64"></canvas>
-                    <h3>{{dato.currently.temperature.toFixed(1)}}ºC</h3>
-                    <h4>{{dato.currently.summary}}</h4>
-                    <div>Humedad : {{dato.currently.humidity*100}}%</div>
-                    <div>{{ dato.currently.time}}</div>
-
-                  </div>
 
         </div>
       </div>
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -32,12 +23,7 @@
 <script src="./assets/skycons.js"></script>
 <script>
 
-var vue = new Vue({
-  el: '#app',
-  data: {
-    datos: null
-  }
-});
+
 
 function iconos (){
    var icons = new Skycons({
@@ -66,9 +52,38 @@ function iconos (){
    var socket = io()
    //recibiendo data cada 10 segundos
    socket.on('server/data', function(data){
-     console.log(data)
-     vue.datos = data.datos;
-     iconos();
+      var html ="";
+      $.each( data.datos, function( key, dato ) {
+        //console.log( key + ": " + value.timezone );
+        html+='<div class="card mv2 p-1 text-center">';
+        html+='<div>'+dato.timezone+'</div>';
+        html+='<canvas class="'+dato.currently.icon+'" width="64" height="64"></canvas>';
+        html+='<h3>'+dato.currently.temperature.toFixed(1)+'ºC</h3>';
+        html+='<h4>'+dato.currently.summary+'</h4>';
+        html+='<div>Humedad : '+dato.currently.humidity*100+'</div>';
+        html+='<div>'+dato.currently.time+'</div>';
+        html+='</div>';
+
+      });
+
+      $('#app').html(html).promise().done(function(){
+        iconos();
+      });
+
+      /*
+     <div class="card mv2 p-1 text-center">
+
+       <div>{{dato.timezone}}</div>
+       <canvas :class="{{dato.currently.icon}}" width="64" height="64"></canvas>
+       <h3>{{dato.currently.temperature.toFixed(1)}}ºC</h3>
+       <h4>{{dato.currently.summary}}</h4>
+       <div>Humedad : {{dato.currently.humidity*100}}%</div>
+       <div>{{ dato.currently.time}}</div>
+
+     </div>
+     */
+
+     //iconos();
    })
 </script>
 </body>
