@@ -1,11 +1,17 @@
-const key = "486f33fc2844e75c45946fdba50fe616";//api clima
-let express = require('express');
-let app = express();
+//const key = "486f33fc2844e75c45946fdba50fe616";//api clima
+const key = "4c0e8eaded48c217f8175373310724e5";
+const http = require('http');
+const express = require('express');
+const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.static('files'));
-let axios = require('axios');
-let redis = require('redis'),client = redis.createClient();
+const socketio = require('socket.io');
+const server = http.createServer(app);
+const io = socketio(server);//iniciando el server de socket.io
+const axios = require('axios');
+const redis = require('redis'),client = redis.createClient();
+let datos = [];
 
 let ciudades = [{'lat':'-33.6012253','long':'-71.2993392'},
                 {'lat':'47.3775499','long':'8.4666752'},
@@ -16,11 +22,11 @@ let ciudades = [{'lat':'-33.6012253','long':'-71.2993392'},
                 {'lat':'32.6627876','long':'-85.4219787'}
                ];
 let cities = null;
-var datos = [];
+
 client.on('connect', function() {
   console.log('conectado a Redis');
   //guardo las ciudades en Redis
-  const redisValue = JSON.stringify(ciudades);
+  let redisValue = JSON.stringify(ciudades);
   client.set('cities', redisValue, function(err, reply) {
       //console.log(reply);
   });
@@ -28,33 +34,52 @@ client.on('connect', function() {
   client.get('cities', function(err, reply) {
     //console.log(JSON.parse(reply));
     cities = JSON.parse(reply);
-
-    cities.map(function (city,index) {
-      //console.log(city.lat);
-      let endpoint = 'https://api.darksky.net/forecast/'+key+'/'+city.lat+','+city.long;
-      axios.get(endpoint).then(resp => {
-          //console.log(resp.data);
-          resp.data.currently.temperature = temperatureConverter(resp.data.currently.temperature);
-          resp.data.currently.time = dateConverter(resp.data.currently.time);
-          datos[index] = resp.data;
-          console.log(datos);
-      });
-
-    });
-
   });
 });
 
-//express begin
-app.get('/', function (req, res) {
-  let data = {'titulo':'Forecast','datos':datos};
-  res.render('index',data);
-});
 
-//https://api.darksky.net/forecast/486f33fc2844e75c45946fdba50fe616/37.8267,-122.4233
-app.listen(3000, function () {
-  console.log('corriendo en el puerto 3000');
-});
+function getData(){
+
+  Object.keys(cities).forEach(function(index) {
+    let endpoint = 'https://api.darksky.net/forecast/'+key+'/'+cities[index].lat+','+cities[index].long;
+    //console.log(endpoint);
+    axios.get(endpoint).then(resp => {
+        //console.log(resp.data);
+        resp.data.currently.temperature = temperatureConverter(resp.data.currently.temperature);
+        resp.data.currently.time = dateConverter(resp.data.currently.time);
+        datos[index] = resp.data;
+        //datos.push(resp.data);
+    }).catch(error => {
+      console.log(error)
+      //datos[index] = error
+    });
+  });
+}
+
+
+const PORT = process.env.PORT || 3000
+
+//corriendo el servidor
+server.listen(PORT, () => {
+  console.log(`Server running in http://localhost:${PORT}`)
+})
+
+
+//socketio
+io.on('connection', function(socket){
+  console.log(`client: ${socket.id}`)
+  getData();
+  console.log(datos);
+  socket.emit('server/data', {'datos':datos})
+  //enviando numero aleatorio cada dos segundo al cliente
+  /*
+  setInterval(() => {
+    var datos = getData();
+    socket.emit('server/random', {'datos':datos})
+  }, 10000);
+  */
+})
+
 
 //helpers
 function temperatureConverter(valNum) {

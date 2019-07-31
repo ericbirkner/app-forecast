@@ -3,38 +3,44 @@
       <meta name="viewport" content= "width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <link rel="stylesheet" href="/assets/css/style.css">
-      <title><%=(locals.titulo) ? titulo :''%></title>
+      <title>App Clima Eric Birkner</title>
 
     </head>
     <body>
 
       <div class="container pa0 flex justify-center mt-5">
-          <div class="listings card-columns">
-              <% datos.forEach(function(dato) {
+          <div class="listings card-columns" id="app">
 
-              %>
-                  <div class="card mv2 p-1 text-center">
+                  <div v-for="dato in datos" class="card mv2 p-1 text-center">
 
-                    <div><%= dato.timezone %></div>
-                    <canvas class="<%= dato.currently.icon %>" width="64" height="64" title="<%= dato.currently.icon %>"></canvas>
-                    <h3><%= dato.currently.temperature.toFixed(1) %>ºC</h3>
-                    <h4><%= dato.currently.summary %></h4>
-                    <div>Humedad : <%= dato.currently.humidity*100 %>%</div>
-                    <div><%= dato.currently.time %> </div>
+                    <div>{{dato.timezone}}</div>
+                    <canvas :class="{{dato.currently.icon}}" width="64" height="64"></canvas>
+                    <h3>{{dato.currently.temperature.toFixed(1)}}ºC</h3>
+                    <h4>{{dato.currently.summary}}</h4>
+                    <div>Humedad : {{dato.currently.humidity*100}}%</div>
+                    <div>{{ dato.currently.time}}</div>
 
                   </div>
 
-              <% }); %>
-
         </div>
       </div>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="./assets/skycons.js"></script>
 <script>
-  var icons = new Skycons({
+
+var vue = new Vue({
+  el: '#app',
+  data: {
+    datos: null
+  }
+});
+
+function iconos (){
+   var icons = new Skycons({
         "color": "#73879C"
     }),
     list = [
@@ -53,17 +59,16 @@
     }
 
     icons.play();
+}
 </script>
 <script type="text/javascript">
    //es2015
    var socket = io()
-   //enviando un numero random cada dos segundos
-   setInterval(function(){
-     socket.emit('client/random', Math.random())
-   }, 2000)
-   //recibiendo un numero random cada dos segundos
-   socket.on('server/random', function(num){
-     console.log(num)
+   //recibiendo data cada 10 segundos
+   socket.on('server/data', function(data){
+     console.log(data)
+     vue.datos = data.datos;
+     iconos();
    })
 </script>
 </body>
