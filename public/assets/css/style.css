@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body{
+  background-color: #cccccc;
+  font-family: 'Roboto', sans-serif;
+  background-image: url('https://source.unsplash.com/1600x900/?weather');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.card canvas{
+  width: 64px;
+  height: 64px;
+  display: inline-block;
+  margin: 0 auto;
+}
