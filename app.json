@@ -1,0 +1,8 @@
+{
+  "name": "app clima Ripley test",
+  "description": "blabla",
+  "repository": "https://github.com/ericbirkner/app-forecast",
+  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+  "keywords": ["node", "express", "heroku"],
+  "image": "heroku/nodejs"
+}
