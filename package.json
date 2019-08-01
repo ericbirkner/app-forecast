@@ -1,8 +1,8 @@
 {
   "name": "mefascinaripley",
   "version": "1.0.0",
-  "description": "prueba",
-  "main": "index.js",
+  "description": "prueba Ripley",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.0",
-    "ejs": "^2.6.2",
     "express": "^4.17.1",
     "redis": "^2.8.0",
     "request": "^2.88.0",

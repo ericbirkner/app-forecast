@@ -4,7 +4,7 @@ body{
   background-color: #cccccc;
   color: #73879C;
   font-family: 'Roboto', sans-serif;
-  background-image: url('https://source.unsplash.com/1600x900/?weather');
+  background-image: url('../img/back.jpeg');
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -14,4 +14,13 @@ body{
   height: 64px;
   display: inline-block;
   margin: 0 auto;
+}
+
+#app{
+  text-align: center;
+}
+
+h3{
+  text-align: center;
+  color: white;
 }

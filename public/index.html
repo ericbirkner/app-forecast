@@ -7,13 +7,10 @@
 
     </head>
     <body>
-
       <div class="container pa0 flex justify-center mt-5">
           <div class="listings card-columns" id="app">
-
-
-
-        </div>
+            <h3>Cargando...</h3>
+          </div>
       </div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -53,38 +50,34 @@ function iconos (){
    //recibiendo data cada 10 segundos
    socket.on('server/data', function(data){
       var html ="";
-      $.each( data.datos, function( key, dato ) {
-        //console.log( key + ": " + value.timezone );
-        html+='<div class="card mv2 p-1 text-center">';
-        html+='<div>'+dato.timezone+'</div>';
-        html+='<canvas class="'+dato.currently.icon+'" width="64" height="64"></canvas>';
-        html+='<h3>'+dato.currently.temperature.toFixed(1)+'ºC</h3>';
-        html+='<h4>'+dato.currently.summary+'</h4>';
-        html+='<div>Humedad : '+dato.currently.humidity*100+'</div>';
-        html+='<div>'+dato.currently.time+'</div>';
-        html+='</div>';
+      console.log(data);
+      if(data.error){
+        $('#app').html('<h3>'+data.error+'</h3>');
+      }
+      if(data.datos.length>0){
+        $.each(data.datos, function( key, dato ) {
+          //console.log( key + ": " + value.timezone );
+          html+='<div class="card mv2 p-1 text-center">';
+          html+='<div>'+dato.timezone+'</div>';
+          html+='<canvas class="'+dato.currently.icon+'" width="64" height="64"></canvas>';
+          html+='<h3>'+dato.currently.temperature.toFixed(1)+'ºC</h3>';
+          html+='<h4>'+dato.currently.summary+'</h4>';
+          html+='<div>Humedad : '+dato.currently.humidity*100+'</div>';
+          html+='<div>'+dato.currently.time+'</div>';
+          html+='</div>';
 
-      });
+        });
 
-      $('#app').html(html).promise().done(function(){
-        iconos();
-      });
+        $('#app').html(html).promise().done(function(){
+          iconos();
+        });
+      }else{
+        $('#app').html('<h3>No hay Datos</h3>');
 
-      /*
-     <div class="card mv2 p-1 text-center">
+      }
 
-       <div>{{dato.timezone}}</div>
-       <canvas :class="{{dato.currently.icon}}" width="64" height="64"></canvas>
-       <h3>{{dato.currently.temperature.toFixed(1)}}ºC</h3>
-       <h4>{{dato.currently.summary}}</h4>
-       <div>Humedad : {{dato.currently.humidity*100}}%</div>
-       <div>{{ dato.currently.time}}</div>
+   });
 
-     </div>
-     */
-
-     //iconos();
-   })
 </script>
 </body>
 

@@ -1,9 +1,8 @@
-//const key = "486f33fc2844e75c45946fdba50fe616";//api clima
-const key = "4c0e8eaded48c217f8175373310724e5";
+const key = "486f33fc2844e75c45946fdba50fe616";//api clima
+//const key = "4c0e8eaded48c217f8175373310724e5";
 const http = require('http');
 const express = require('express');
 const app = express();
-app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.static('files'));
 const socketio = require('socket.io');
@@ -12,6 +11,7 @@ const io = socketio(server);//iniciando el server de socket.io
 const axios = require('axios');
 const redis = require('redis'),client = redis.createClient();
 let datos = [];
+let error_api = false;
 
 let ciudades = [{'lat':'-33.6012253','long':'-71.2993392'},
                 {'lat':'47.3775499','long':'8.4666752'},
@@ -39,27 +39,38 @@ client.on('connect', function() {
 
 
 function getData(){
-
-  Object.keys(cities).forEach(function(index) {
-    let endpoint = 'https://api.darksky.net/forecast/'+key+'/'+cities[index].lat+','+cities[index].long;
-    //console.log(endpoint);
-    axios.get(endpoint).then(resp => {
-        //console.log(resp.data);
-        resp.data.currently.temperature = temperatureConverter(resp.data.currently.temperature);
-        resp.data.currently.time = dateConverter(resp.data.currently.time);
-        datos[index] = resp.data;
-        //datos.push(resp.data);
-    }).catch(error => {
-      console.log(error)
-      //datos[index] = error
+  var probabilidad = Math.random() * 1;
+  console.log('probabilidad:'+probabilidad);
+  if (probabilidad < 0.1){
+    //este error bota la app por eso lo comente, descomentar para que funcione
+    //throw new Error('How unfortunate! The API Request Failed');
+    var tiempo = new Date().getTime();
+    client.hmset('api.errors', {tiempo : 'How unfortunate! The API Request Failed'}, (err, reply) => {
+      error_api = true;
     });
-  });
+  }else{
+    error_api=false;
+    Object.keys(cities).forEach(function(index) {
+      let endpoint = 'https://api.darksky.net/forecast/'+key+'/'+cities[index].lat+','+cities[index].long;
+      //console.log(endpoint);
+      axios.get(endpoint).then(resp => {
+          //console.log(resp.data);
+          resp.data.currently.temperature = temperatureConverter(resp.data.currently.temperature);
+          resp.data.currently.time = dateConverter(resp.data.currently.time);
+          datos[index] = resp.data;
+          //datos.push(resp.data);
+      }).catch(error => {
+        console.log(error)
+        //datos[index] = error
+      });
+    });
+  }//endif 10%
 }
 
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 
-//corriendo el servidor
+//puerto del servidor
 server.listen(PORT, () => {
   console.log(`Server running in http://localhost:${PORT}`)
 })
@@ -70,14 +81,23 @@ io.on('connection', function(socket){
   console.log(`client: ${socket.id}`)
   getData();
   console.log(datos);
-  socket.emit('server/data', {'datos':datos})
-  //enviando numero aleatorio cada dos segundo al cliente
-  /*
+  if(error_api){
+    socket.emit('server/data', {'error':'How unfortunate! The API Request Failed'})
+  }else{
+    socket.emit('server/data', {'datos':datos})
+  }
+
+
+  //enviando data diez segundo al cliente
   setInterval(() => {
-    var datos = getData();
-    socket.emit('server/random', {'datos':datos})
+    getData();
+    if(error_api){
+      socket.emit('server/data', {'error':'How unfortunate! The API Request Failed'})
+    }else{
+      socket.emit('server/data', {'datos':datos})
+    }
   }, 10000);
-  */
+
 })
 
 
