@@ -4,7 +4,8 @@
   "description": "prueba Ripley",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "eric birkner",
   "license": "ISC",
@@ -14,5 +15,15 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "socket.io": "^2.2.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericbirkner/app-forecast.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/ericbirkner/app-forecast/issues"
+  },
+  "homepage": "https://github.com/ericbirkner/app-forecast#readme"
 }
