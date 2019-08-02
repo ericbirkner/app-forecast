@@ -24,3 +24,7 @@ h3{
   text-align: center;
   color: white;
 }
+
+.card h3{
+  color: #73879C !important;
+}
